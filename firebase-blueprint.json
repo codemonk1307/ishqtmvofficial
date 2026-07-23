@@ -1,0 +1,156 @@
+{
+  "entities": {
+    "Suggestion": {
+      "title": "Suggestion",
+      "description": "User requested poem/shayar for the channel",
+      "type": "object",
+      "properties": {
+        "poet": {
+          "type": "string"
+        },
+        "work": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        }
+      },
+      "required": ["poet", "work", "timestamp"]
+    },
+    "LiteratureItem": {
+      "title": "LiteratureItem",
+      "description": "A poetic work in the database (Ghazal, Sher, Rubai, Muhavaras, etc.)",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "originalText": {
+          "type": "string"
+        },
+        "romanizedText": {
+          "type": "string"
+        },
+        "englishTranslation": {
+          "type": "string"
+        },
+        "hindiUrduExplanation": {
+          "type": "string"
+        },
+        "vocabulary": {
+          "type": "array"
+        },
+        "popularity": {
+          "type": "string"
+        },
+        "viewsCount": {
+          "type": "number"
+        },
+        "likesCount": {
+          "type": "number"
+        },
+        "datePublished": {
+          "type": "string"
+        },
+        "backgroundStory": {
+          "type": "string"
+        }
+      },
+      "required": ["title", "author", "category", "originalText", "datePublished"]
+    },
+    "Broadcast": {
+      "title": "Broadcast",
+      "description": "A YouTube video or Instagram reel posted on the channel",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "embedId": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "thumbnailUrl": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        }
+      },
+      "required": ["title", "type", "embedId", "timestamp"]
+    },
+    "User": {
+      "title": "User",
+      "description": "User profile",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin"] },
+        "lastReadDate": { "type": "string" },
+        "currentStreak": { "type": "number" },
+        "longestStreak": { "type": "number" },
+        "bookmarks": { "type": "array" },
+        "writtenCount": { "type": "number" },
+        "publishedCount": { "type": "number" },
+        "reviewCount": { "type": "number" }
+      },
+      "required": ["uid", "email"]
+    },
+    "UserSubmission": {
+      "title": "UserSubmission",
+      "description": "User submitted poetry for approval",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "author": { "type": "string" },
+        "title": { "type": "string" },
+        "originalText": { "type": "string" },
+        "category": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "originalText", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/suggestions/{suggestionId}": {
+      "schema": "Suggestion",
+      "description": "Collection of masterpiece requests from visitors"
+    },
+    "/literature/{itemId}": {
+      "schema": "LiteratureItem",
+      "description": "Collection of rich poetic works"
+    },
+    "/broadcasts/{broadcastId}": {
+      "schema": "Broadcast",
+      "description": "Collection of YouTube recitations and Instagram reels"
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Stores user profiles"
+    },
+    "/user_submissions/{submissionId}": {
+      "schema": "UserSubmission",
+      "description": "Stores user submitted poetry awaiting admin approval"
+    }
+  }
+}

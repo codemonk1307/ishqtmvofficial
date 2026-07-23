@@ -1,0 +1,81 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isSignedIn() { return request.auth != null; }
+    
+    // Check if user is an admin by verifying their role in the users collection
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /users/{userId} {
+      // User can read their own profile, admin can read all
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      // Self registration - cannot create admin
+      allow create: if isSignedIn() && request.auth.uid == userId 
+                    && isValidId(userId)
+                    && incoming().keys().hasAll(['uid', 'email', 'role']) 
+                    && incoming().uid == request.auth.uid
+                    && incoming().role == 'user';
+      // User can update their own profile, but cannot elevate privileges, admin can update all
+      allow update: if (isSignedIn() && request.auth.uid == userId && !incoming().diff(existing()).affectedKeys().hasAny(['role', 'uid'])) || isAdmin();
+    }
+
+    match /user_submissions/{submissionId} {
+      // Admin can read all, user can read their own
+      allow read: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && isValidId(submissionId)
+                    && incoming().keys().hasAll(['userId', 'originalText', 'status', 'createdAt'])
+                    && incoming().userId == request.auth.uid
+                    && incoming().status == 'pending';
+      // Only admin can update the status
+      allow update: if isAdmin();
+    }
+
+    // Publicly accessible content, admin writes, anyone can increment view count
+    match /literature/{itemId} {
+      allow read: if true;
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || (incoming().diff(existing()).affectedKeys().hasOnly(['viewsCount']) && incoming().viewsCount == existing().viewsCount + 1);
+    }
+
+    match /broadcasts/{broadcastId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /suggestions/{suggestionId} {
+      allow read: if true;
+      allow create: if true;
+    }
+
+    match /pages/{pageId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /blogs/{blogId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /products/{productId} {
+      allow write: if true;
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /orders/{orderId} {
+      allow read: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow create: if true;
+      allow update: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Ain Sheen Qaf : The Muted Void",
+  "description": "A curated literary sanctuary for Urdu poetry, Hindi literature, English classics, and shayaris by ishqtmvofficial. Explore shers, ghazals, nazms, and translate or analyze verses with Nukta, our AI literary companion.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
